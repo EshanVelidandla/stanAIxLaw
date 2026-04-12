@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import CytoscapeComponent from 'react-cytoscapejs'
 import cytoscape from 'cytoscape'
 import dagre from 'cytoscape-dagre'
@@ -53,6 +53,7 @@ export default function App() {
   const [selectedNode, setSelectedNode] = useState(null)
   const [demoMode, setDemoMode] = useState(false)
   const cyRef = useRef(null)
+  const containerRef = useRef(null)
 
   const buildElements = useCallback((m) => {
     if (!m?.subgraph) return []
@@ -77,6 +78,39 @@ export default function App() {
     }))
 
     return [...cyNodes, ...cyEdges]
+  }, [])
+
+  // Run dagre layout imperatively and fit after layoutstop
+  const elements = memo ? buildElements(memo) : []
+
+  useEffect(() => {
+    const cy = cyRef.current
+    if (!cy || elements.length === 0) return
+    const lay = cy.layout({
+      name: 'dagre',
+      rankDir: 'BT',
+      nodeSep: 60,
+      rankSep: 80,
+      padding: 40,
+      animate: true,
+      animationDuration: 600,
+    })
+    lay.on('layoutstop', () => {
+      cy.fit(undefined, 40)
+      cy.center()
+    })
+    lay.run()
+  }, [elements])
+
+  // ResizeObserver — keeps canvas correct on window resize
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+    const ro = new ResizeObserver(() => {
+      if (cyRef.current) cyRef.current.resize()
+    })
+    ro.observe(container)
+    return () => ro.disconnect()
   }, [])
 
   const stylesheet = [
@@ -111,8 +145,6 @@ export default function App() {
     },
   ]
 
-  const layout = { name: 'dagre', rankDir: 'BT', nodeSep: 55, rankSep: 90, animate: true, animationDuration: 700 }
-
   async function handleQuery(q, isDemo) {
     const finalQ = q || question
     if (!finalQ.trim()) return
@@ -142,8 +174,6 @@ export default function App() {
       }
     })
   }
-
-  const elements = memo ? buildElements(memo) : []
 
   return (
     <div className="app">
@@ -182,17 +212,26 @@ export default function App() {
       <div className="main-content">
         {/* Graph panel */}
         <div className="graph-panel">
+          <div ref={containerRef} className="cy-container">
           {elements.length > 0 ? (
             <CytoscapeComponent
               elements={elements}
               stylesheet={stylesheet}
-              layout={layout}
+              layout={{ name: 'preset' }}
               style={{ width: '100%', height: '100%' }}
               cy={cy => {
                 cyRef.current = cy
                 cy.on('tap', 'node', e => {
                   const n = e.target
-                  setSelectedNode({ id: n.id(), citation: n.data('citation'), holding: n.data('holding'), date: n.data('date'), court: n.data('court') })
+                  setSelectedNode({
+                    id: n.id(),
+                    citation: n.data('citation'),
+                    holding: n.data('holding'),
+                    date: n.data('date'),
+                    court: n.data('court'),
+                    isAnchor: n.data('isAnchor'),
+                    hops: n.data('hops'),
+                  })
                 })
               }}
             />
@@ -207,13 +246,32 @@ export default function App() {
               }
             </div>
           )}
+          </div>
 
           {selectedNode && (
             <div className="node-drawer">
               <button className="drawer-close" onClick={() => setSelectedNode(null)}>✕</button>
+              <div className="drawer-badges">
+                {selectedNode.isAnchor
+                  ? <span className="drawer-badge anchor">Key Case</span>
+                  : <span className="drawer-badge related">Related Precedent</span>}
+                {selectedNode.hops > 0 && (
+                  <span className="drawer-badge hops">{selectedNode.hops === 1 ? '1 step away' : `${selectedNode.hops} steps away`}</span>
+                )}
+              </div>
               <div className="drawer-citation">{selectedNode.citation}</div>
-              <div className="drawer-meta">{selectedNode.court} · {selectedNode.date}</div>
-              <div className="drawer-holding">{(selectedNode.holding || '').slice(0, 400)}</div>
+              <div className="drawer-meta">
+                <span className="drawer-court">{(selectedNode.court || '').toUpperCase()}</span>
+                {selectedNode.date && <span> · {selectedNode.date.slice(0, 4)}</span>}
+              </div>
+              <div className="drawer-section-label">What the court decided</div>
+              <div className="drawer-holding">{selectedNode.holding || 'No summary available.'}</div>
+              <div className="drawer-section-label" style={{ marginTop: 10 }}>Why it matters</div>
+              <div className="drawer-layman">
+                {selectedNode.isAnchor
+                  ? 'This is one of the central cases driving the analysis. The court\'s ruling here directly shapes how similar patent disputes are decided today.'
+                  : `This case was cited ${selectedNode.hops === 1 ? 'directly' : `${selectedNode.hops} steps removed`} from the key cases. It supports or refines the legal rules established by those earlier decisions.`}
+              </div>
             </div>
           )}
 

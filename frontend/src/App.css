@@ -215,16 +215,26 @@ body {
 .main-content {
   display: flex;
   flex: 1;
+  min-height: 0;   /* critical: lets flex children honour height:100% */
   overflow: hidden;
 }
 
 /* ── Graph panel ──────────────────────────────────────────── */
 .graph-panel {
   position: relative;
-  width: 55%;
+  width: 65%;
   flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
   background: radial-gradient(ellipse at 30% 40%, #0D1F3C 0%, var(--bg) 70%);
   border-right: 1px solid var(--border);
+  overflow: hidden;
+}
+
+/* Cytoscape container — fills all available height */
+.cy-container {
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
 }
 
@@ -233,7 +243,9 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  width: 100%;
   height: 100%;
+  min-height: 400px;
   color: var(--text-muted);
   gap: 12px;
 }
@@ -255,16 +267,21 @@ body {
   position: absolute;
   bottom: 44px;
   left: 14px;
-  width: 300px;
+  width: 340px;
+  max-height: calc(100% - 80px);
+  overflow-y: auto;
   background: var(--surface2);
   border: 1px solid var(--border-light);
   border-left: 3px solid var(--gold);
   border-radius: var(--radius-lg);
-  padding: 14px 16px;
+  padding: 14px 16px 16px;
   z-index: 10;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.6);
   backdrop-filter: blur(8px);
 }
+
+.node-drawer::-webkit-scrollbar { width: 3px; }
+.node-drawer::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
 .drawer-close {
   float: right;
@@ -275,11 +292,78 @@ body {
   font-size: 16px;
   line-height: 1;
   padding: 0;
+  margin-left: 8px;
 }
 .drawer-close:hover { color: var(--text); }
-.drawer-citation { font-weight: 700; font-size: 13px; color: var(--gold-light); margin-bottom: 4px; }
-.drawer-meta { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; }
-.drawer-holding { font-size: 12px; color: var(--text-dim); line-height: 1.6; }
+
+.drawer-badges {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.drawer-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+.drawer-badge.anchor {
+  background: rgba(249, 115, 22, 0.15);
+  border: 1px solid rgba(249, 115, 22, 0.4);
+  color: #F97316;
+}
+.drawer-badge.related {
+  background: rgba(139, 92, 246, 0.12);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  color: #A78BFA;
+}
+.drawer-badge.hops {
+  background: var(--surface3);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+.drawer-citation {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--gold-light);
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+.drawer-meta {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+.drawer-court {
+  font-weight: 600;
+  color: var(--text-dim);
+  letter-spacing: 0.3px;
+}
+
+.drawer-section-label {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 5px;
+}
+.drawer-holding {
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.65;
+}
+.drawer-layman {
+  font-size: 12px;
+  color: var(--text);
+  line-height: 1.65;
+  background: var(--surface3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+}
 
 /* ── Legend ───────────────────────────────────────────────── */
 .legend {
