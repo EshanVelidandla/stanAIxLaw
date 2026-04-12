@@ -114,6 +114,71 @@ SEED_CITATIONS = [
     "769 F.3d 1371",         # Apple v. Samsung (2014) — causal nexus
     "839 F.3d 1034",         # Apple v. Samsung (2016) — design patent damages
     "926 F.3d 1362",         # Nichia Corp v. Everlight Americas (2019)
+
+    # Enhanced Damages / Willfulness
+    "579 U.S. 93",           # Halo Electronics v. Pulse Electronics (2016)
+    "776 F.3d 837",          # Bard Peripheral Vascular v. W.L. Gore (2015)
+    "890 F.3d 1272",         # WesternGeco v. ION Geophysical (2018) — extraterritorial damages
+
+    # Patent Exhaustion
+    "581 U.S. 360",          # Impression Products v. Lexmark International (2017)
+    "553 U.S. 617",          # Quanta Computer v. LG Electronics (2008)
+
+    # IPR Constitutionality & Procedure
+    "584 U.S. 325",          # Oil States Energy Services v. Greene's Energy Group (2018)
+    "590 U.S. 45",           # Thryv v. Click-to-Call Technologies (2020)
+    "143 S.Ct. 898",         # Cuozzo Speed Technologies v. Lee (2016) SCOTUS
+
+    # Claim Construction — Additional
+    "574 U.S. 318",          # Teva Pharmaceuticals v. Sandoz (2015) — de novo review
+    "521 F.3d 1351",         # O2 Micro International v. Beyond Innovation (2008)
+    "800 F.3d 1366",         # Media Rights Technologies v. Capital One (2015)
+
+    # § 101 — More Recent
+    "874 F.3d 1329",         # Two-Way Media v. Comcast Cable (2017)
+    "838 F.3d 1253",         # Affinity Labs v. DirecTV (2016)
+    "898 F.3d 1161",         # SAP America v. InvestPic (2018)
+    "920 F.3d 759",          # ChargePoint v. SemaConnect (2019)
+    "934 F.3d 1373",         # MyMail v. ooVoo (2019)
+    "935 F.3d 1341",         # Chamberlain Group v. Techtronic Industries (2019)
+    "977 F.3d 1327",         # Interval Licensing v. AOL (2020)
+
+    # Divided / Induced Infringement
+    "797 F.3d 1020",         # Akamai Technologies v. Limelight Networks (2015)
+    "572 U.S. 915",          # Limelight Networks v. Akamai Technologies (2014)
+
+    # Inequitable Conduct
+    "649 F.3d 1276",         # Therasense v. Becton Dickinson (2011) — materiality/intent
+
+    # Written Description / Enablement — Additional
+    "687 F.3d 1377",         # MagSil Corp v. Hitachi Global Storage (2012)
+    "941 F.3d 1149",         # Idenix Pharmaceuticals v. Gilead Sciences (2019)
+    "143 S.Ct. 1243",        # Amgen v. Sanofi (2023) SCOTUS — enablement
+    "864 F.3d 1343",         # Regeneron Pharmaceuticals v. Merus (2017)
+
+    # FRAND / Standard-Essential Patents
+    "773 F.3d 1201",         # Ericsson v. D-Link Systems (2014) — FRAND royalty
+    "809 F.3d 1295",         # CSIRO v. Cisco Systems (2015) — FRAND
+
+    # Declaratory Judgment / Jurisdiction
+    "549 U.S. 118",          # MedImmune v. Genentech (2007) — DJ standard
+    "553 U.S. 678",          # Quanta Computer v. LG (exhaustion companion)
+
+    # Design Patents
+    "543 F.3d 665",          # Egyptian Goddess v. Swisa (2008) — design patent test
+    "580 U.S. 593",          # Samsung Electronics v. Apple (2016) — design patent damages
+
+    # Obviousness-Type Double Patenting
+    "753 F.3d 1208",         # Gilead Sciences v. Natco Pharma (2014) — ODP
+
+    # Prosecution Disclaimer
+    "713 F.3d 1090",         # Biogen Idec v. GlaxoSmithKline (2013)
+
+    # Recent CAFC 2021-2024
+    "29 F.4th 1360",         # Novartis Pharmaceuticals v. HEC Pharm (2022)
+    "56 F.4th 1361",         # Medtronic v. Teleflex (2023)
+    "45 F.4th 1339",         # Kannuu v. Samsung Electronics (2022)
+    "62 F.4th 1374",         # Telectronics v. Medtronic (2023)
 ]
 
 SEARCH_QUERIES = {
@@ -164,10 +229,16 @@ def _extract_row(case: dict) -> dict:
 
 
 def ingest_seed(client: MidpageClient, existing: set[str]) -> list[str]:
-    """Ingest all seed cases in one bulk citations request, then fetch full text."""
-    print(f"  Bulk fetching {len(SEED_CITATIONS)} seed citations…")
-    cases = client.get_by_citations(SEED_CITATIONS, include_content=True)
-    print(f"  Midpage returned {len(cases)} matches")
+    """Ingest all seed cases in batches of 50, then fetch full text."""
+    unique_citations = list(dict.fromkeys(SEED_CITATIONS))  # dedupe, preserve order
+    print(f"  Fetching {len(unique_citations)} unique seed citations in batches…")
+    cases = []
+    for i in range(0, len(unique_citations), 50):
+        batch = unique_citations[i:i+50]
+        result = client.get_by_citations(batch, include_content=True)
+        cases.extend(result)
+        print(f"    Batch {i//50 + 1}: got {len(result)} matches")
+    print(f"  Total Midpage matches: {len(cases)}")
 
     new_ids = []
     batch = []

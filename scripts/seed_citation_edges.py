@@ -103,6 +103,51 @@ KNOWN_EDGES = [
     ("10 F.4th 1328", "598 F.3d 1336"),  # Amgen -> Ariad
     ("987 F.3d 1375", "598 F.3d 1336"),  # Juno -> Ariad
     ("10 F.4th 1328", "569 U.S. 576"),   # Amgen -> Myriad (functional claim analogy)
+    ("687 F.3d 1377", "598 F.3d 1336"),  # MagSil -> Ariad (enablement)
+    ("864 F.3d 1343", "598 F.3d 1336"),  # Regeneron -> Ariad (written description)
+
+    # § 101 new cases -> Alice
+    ("838 F.3d 1253", "573 U.S. 208"),   # Affinity Labs -> Alice
+    ("874 F.3d 1329", "573 U.S. 208"),   # Two-Way Media -> Alice
+    ("898 F.3d 1161", "573 U.S. 208"),   # SAP v. InvestPic -> Alice
+    ("920 F.3d 759",  "573 U.S. 208"),   # ChargePoint -> Alice
+    ("934 F.3d 1373", "573 U.S. 208"),   # MyMail -> Alice
+    ("935 F.3d 1341", "573 U.S. 208"),   # Chamberlain -> Alice
+    ("874 F.3d 1329", "822 F.3d 1327"),  # Two-Way Media -> Enfish (distinguished)
+    ("920 F.3d 759",  "773 F.3d 1245"),  # ChargePoint -> DDR Holdings
+    ("920 F.3d 759",  "566 U.S. 66"),    # ChargePoint -> Mayo
+    ("898 F.3d 1161", "566 U.S. 66"),    # SAP -> Mayo
+    ("838 F.3d 1253", "566 U.S. 66"),    # Affinity Labs -> Mayo
+
+    # Claim construction new
+    ("521 F.3d 1351", "415 F.3d 1303"),  # O2 Micro -> Phillips
+    ("800 F.3d 1366", "415 F.3d 1303"),  # Media Rights -> Phillips
+    ("800 F.3d 1366", "792 F.3d 1339"),  # Media Rights -> Williamson
+    ("713 F.3d 1090", "415 F.3d 1303"),  # Biogen -> Phillips
+
+    # Divided / induced infringement
+    ("797 F.3d 1020", "572 U.S. 915"),   # Akamai en banc -> Limelight (SCOTUS remand)
+    ("572 U.S. 915",  "535 U.S. 722"),   # Limelight -> Festo (active inducement context)
+
+    # Enhanced damages chain
+    ("579 U.S. 93",   "547 U.S. 388"),   # Halo -> eBay (discretion standard parallel)
+    ("776 F.3d 837",  "594 F.3d 860"),   # Bard Peripheral -> Lucent (damages context)
+
+    # Patent exhaustion chain
+    ("581 U.S. 360",  "553 U.S. 617"),   # Impression Products -> Quanta
+
+    # Inequitable conduct chain
+    ("864 F.3d 1343", "649 F.3d 1276"),  # Regeneron -> Therasense
+
+    # IPR / PTAB new
+    ("584 U.S. 325",  "572 U.S. 898"),   # Oil States -> Nautilus (validity review)
+    ("590 U.S. 45",   "584 U.S. 325"),   # Thryv -> Oil States
+
+    # FRAND cluster
+    ("809 F.3d 1295",  "773 F.3d 1201"), # CSIRO -> Ericsson v. D-Link (FRAND methodology)
+
+    # Declaratory judgment
+    ("549 U.S. 118",  "547 U.S. 388"),   # MedImmune -> eBay (licensee standing / coercive context)
 ]
 
 
