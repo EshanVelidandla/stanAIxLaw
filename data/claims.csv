@@ -1,0 +1,52 @@
+claim_id,case_id,patent_number,claim_text_excerpt,scope_ruling
+cl_000000,107160,2118222,,indefinite
+cl_000001,107160,2844290,,indefinite
+cl_000002,107160,2586687,,indefinite
+cl_000003,107160,1447712,,indefinite
+cl_000004,107160,2119884,,indefinite
+cl_000005,107160,2715480,,indefinite
+cl_000006,118019,UNKNOWN,,unspecified
+cl_000007,145737,6109241,,unspecified
+cl_000008,145737,6237565,,unspecified
+cl_000009,145737,5063811,,unspecified
+cl_000010,145737,5241936,,unspecified
+cl_000011,145737,6151986,,unspecified
+cl_000012,145737,5819593,,unspecified
+cl_000013,145737,5385068,,unspecified
+cl_000014,2679558,UNKNOWN,,unspecified
+cl_000015,2751497,7346545,,unspecified
+cl_000016,2757944,6993572,,indefinite
+cl_000017,2757944,6629135,,indefinite
+cl_000018,2757944,7818399,,indefinite
+cl_000019,2808717,6155840,“a graphical representation of an at least partially virtual,means-plus-function
+cl_000020,3202929,6151604,,means-plus-function
+cl_000021,3202929,6163775,,means-plus-function
+cl_000022,3204019,6038295,,unspecified
+cl_000023,3219449,5987606,,means-plus-function
+cl_000024,4020383,UNKNOWN,,indefinite
+cl_000025,4033181,UNKNOWN,,unspecified
+cl_000026,4033559,UNKNOWN,,unspecified
+cl_000027,4094335,6418467,,means-plus-function
+cl_000028,4151013,6474159,,unspecified
+cl_000029,4195898,5953740,,unspecified
+cl_000030,4235611,6965968,,unspecified
+cl_000031,4235611,7647633,,unspecified
+cl_000032,4235611,6154844,,unspecified
+cl_000033,4235611,7418731,,unspecified
+cl_000034,4239176,6781611,,unspecified
+cl_000035,4239176,8434020,,unspecified
+cl_000036,4239176,8713476,,unspecified
+cl_000037,4243359,7447713,,indefinite
+cl_000038,4244880,7171615,,unspecified
+cl_000039,4244880,8984393,,unspecified
+cl_000040,4266029,6769613,,indefinite
+cl_000041,4342333,6411941,,indefinite
+cl_000042,4378736,6711615,detecting suspicious network activity based on,construed_as
+cl_000043,4388510,UNKNOWN,,unspecified
+cl_000044,4409901,UNKNOWN,,unspecified
+cl_000045,625710,6355623,,unspecified
+cl_000046,625710,6680302,,unspecified
+cl_000047,791122,4677798,they would be understood by a hypothetical person of skill i,means-plus-function
+cl_000048,8415477,6711615,detecting suspicious network activity based on,construed_as
+cl_000049,902266,UNKNOWN,,unspecified
+cl_000050,902772,UNKNOWN,,unspecified

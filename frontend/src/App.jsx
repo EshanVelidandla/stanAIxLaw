@@ -6,7 +6,7 @@ import './App.css'
 
 cytoscape.use(dagre)
 
-const API = 'http://localhost:8000'
+const API = 'http://localhost:8001'
 
 const NODE_COLORS = {
   Case: '#8B5CF6',
@@ -29,7 +29,7 @@ function riskColor(score) {
 }
 
 function SourceBadge({ source }) {
-  const colors = { graph: '#8B5CF6', midpage: '#22C55E', rag: '#3B82F6', statute: '#3B82F6' }
+  const colors = { graph: '#8B5CF6', midpage: '#22C55E' }
   const bg = colors[source] || '#6B7280'
   return (
     <span style={{
@@ -280,13 +280,6 @@ export default function App() {
                   ))}
                 </div>
               </div>
-
-              {(memo.statutory_grounding || []).length > 0 && (
-                <div className="section">
-                  <div className="section-title">Statutory Grounding</div>
-                  <div className="chips">{memo.statutory_grounding.map((s, i) => <span key={i} className="chip">{s}</span>)}</div>
-                </div>
-              )}
 
               <div className="cite-row">
                 <div className="cite-col">

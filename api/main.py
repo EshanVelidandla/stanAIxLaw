@@ -21,7 +21,6 @@ from graph.queries import (
     get_full_subgraph,
     get_judge_pattern,
     get_precedent_chain,
-    vector_search_cases,
 )
 from llm.query import run_patent_query
 from llm.verify import verify_citations
@@ -115,18 +114,6 @@ async def get_subgraph(ids: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
-@app.get("/search")
-async def search(q: str, top_k: int = 5):
-    """Quick vector search for cases matching a text query."""
-    import voyageai
-    vc = voyageai.Client(api_key=os.environ["VOYAGE_API_KEY"])
-    try:
-        result = vc.embed([q], model="voyage-law-2", input_type="query")
-        results = vector_search_cases(result.embeddings[0], top_k=top_k)
-        return {"results": results}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/health")
