@@ -1,10 +1,39 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
+import { AnimatePresence } from 'framer-motion'
 import CytoscapeComponent from 'react-cytoscapejs'
 import cytoscape from 'cytoscape'
 import dagre from 'cytoscape-dagre'
+import Landing from './Landing'
 import './App.css'
 
 cytoscape.use(dagre)
+
+// ── Typing animation (from 21st.dev / MagicUI) ────────────────────────────────
+function TypingAnimation({ text, speed = 35, className = '' }) {
+  const [displayed, setDisplayed] = useState('')
+  const [idx, setIdx] = useState(0)
+
+  useEffect(() => {
+    setDisplayed('')
+    setIdx(0)
+  }, [text])
+
+  useEffect(() => {
+    if (idx >= text.length) return
+    const t = setTimeout(() => {
+      setDisplayed(text.slice(0, idx + 1))
+      setIdx(i => i + 1)
+    }, speed)
+    return () => clearTimeout(t)
+  }, [idx, text, speed])
+
+  return (
+    <span className={`typing-animation ${className}`}>
+      {displayed}
+      <span className="typing-cursor" aria-hidden="true">|</span>
+    </span>
+  )
+}
 
 const API = 'http://localhost:8001'
 
@@ -46,6 +75,7 @@ function TrustBadge({ verified }) {
 }
 
 export default function App() {
+  const [showLanding, setShowLanding] = useState(true)
   const [question, setQuestion] = useState('')
   const [memo, setMemo] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -80,28 +110,6 @@ export default function App() {
     return [...cyNodes, ...cyEdges]
   }, [])
 
-  // Run dagre layout imperatively and fit after layoutstop
-  const elements = memo ? buildElements(memo) : []
-
-  useEffect(() => {
-    const cy = cyRef.current
-    if (!cy || elements.length === 0) return
-    const lay = cy.layout({
-      name: 'dagre',
-      rankDir: 'BT',
-      nodeSep: 60,
-      rankSep: 80,
-      padding: 40,
-      animate: true,
-      animationDuration: 600,
-    })
-    lay.on('layoutstop', () => {
-      cy.fit(undefined, 40)
-      cy.center()
-    })
-    lay.run()
-  }, [elements])
-
   // ResizeObserver — keeps canvas correct on window resize
   useEffect(() => {
     const container = containerRef.current
@@ -113,37 +121,93 @@ export default function App() {
     return () => ro.disconnect()
   }, [])
 
+  const elements = memo ? buildElements(memo) : []
+
   const stylesheet = [
     {
       selector: 'node',
       style: {
-        'background-color': 'data(color)',
+        'background-color': '#0D1C34',
         'label': 'data(label)',
-        'color': '#fff',
+        'color': '#C9D8EE',
         'font-size': 9,
         'text-valign': 'center',
         'text-halign': 'center',
-        'width': 90,
-        'height': 38,
+        'width': 104,
+        'height': 44,
         'shape': 'round-rectangle',
         'text-wrap': 'wrap',
-        'text-max-width': 84,
+        'text-max-width': 94,
+        'border-width': 1,
+        'border-color': '#2A4570',
+        'shadow-blur': 10,
+        'shadow-color': '#8B5CF6',
+        'shadow-offset-x': 0,
+        'shadow-offset-y': 0,
+        'shadow-opacity': 0.35,
       },
     },
     {
       selector: 'node[?isAnchor]',
-      style: { 'border-width': 3, 'border-color': '#fff', 'width': 108, 'height': 46, 'font-weight': 700, 'font-size': 10 },
+      style: {
+        'background-color': '#1A0F35',
+        'border-width': 2,
+        'border-color': '#F97316',
+        'color': '#FFE4CC',
+        'width': 120,
+        'height': 52,
+        'font-weight': 700,
+        'font-size': 10,
+        'shadow-blur': 22,
+        'shadow-color': '#F97316',
+        'shadow-offset-x': 0,
+        'shadow-offset-y': 0,
+        'shadow-opacity': 0.65,
+      },
     },
-    { selector: 'node:selected', style: { 'border-width': 3, 'border-color': '#FCD34D' } },
+    {
+      selector: 'node:selected',
+      style: {
+        'border-width': 2,
+        'border-color': '#C9A84C',
+        'shadow-blur': 28,
+        'shadow-color': '#C9A84C',
+        'shadow-offset-x': 0,
+        'shadow-offset-y': 0,
+        'shadow-opacity': 0.9,
+      },
+    },
     {
       selector: 'edge[type = "CITES"]',
-      style: { 'width': 1.5, 'line-color': '#8B5CF6', 'target-arrow-color': '#8B5CF6', 'target-arrow-shape': 'triangle', 'curve-style': 'bezier', 'opacity': 0.75 },
+      style: {
+        'width': 1.5,
+        'line-color': '#3B2A6E',
+        'target-arrow-color': '#8B5CF6',
+        'target-arrow-shape': 'triangle',
+        'curve-style': 'bezier',
+        'opacity': 0.85,
+        'arrow-scale': 0.8,
+      },
     },
     {
       selector: 'edge[type = "SIMILAR_TO"]',
-      style: { 'width': 1, 'line-color': '#8B5CF6', 'line-style': 'dashed', 'curve-style': 'bezier', 'opacity': 0.4 },
+      style: {
+        'width': 1,
+        'line-color': '#1E3358',
+        'line-style': 'dashed',
+        'curve-style': 'bezier',
+        'opacity': 0.5,
+        'line-dash-pattern': [6, 3],
+      },
     },
   ]
+
+  function handleLandingSubmit(q, isDemo) {
+    setQuestion(q)
+    setShowLanding(false)
+    // Small delay so the fade-out animation completes before the fetch starts
+    setTimeout(() => handleQuery(q, isDemo), 420)
+  }
 
   async function handleQuery(q, isDemo) {
     const finalQ = q || question
@@ -178,7 +242,7 @@ export default function App() {
   return (
     <div className="app">
       <div className="header">
-        <div className="logo">⬡ PatentGraph <span className="logo-sub">Patent Litigation Intelligence</span></div>
+        <div className="logo">⬡ <span className="logo-text">PatentGraph</span> <span className="logo-sub">Patent Litigation Intelligence</span></div>
         <div className="header-right">
           {demoMode && <span className="demo-badge">DEMO MODE</span>}
           <span className="header-tag">Harvey Challenge · Stanford LLM×Law #6</span>
@@ -210,17 +274,108 @@ export default function App() {
       {error && <div className="error-bar">⚠ {error}</div>}
 
       <div className="main-content">
+        {/* Left node info panel */}
+        <div className={`node-info-panel${selectedNode ? ' node-info-panel--open' : ''}`}>
+          {selectedNode && (
+            <div className="nip-content">
+              <div className="nip-orb" />
+              <div className="nip-header">
+                <div className="nip-badges">
+                  {selectedNode.isAnchor
+                    ? <span className="nip-badge nip-badge--anchor">⬡ Key Case</span>
+                    : <span className="nip-badge nip-badge--related">◈ Related Precedent</span>}
+                  {selectedNode.hops > 0 && (
+                    <span className="nip-badge nip-badge--hops">
+                      {selectedNode.hops === 1 ? '1 hop' : `${selectedNode.hops} hops`}
+                    </span>
+                  )}
+                </div>
+                <button className="nip-close" onClick={() => setSelectedNode(null)}>✕</button>
+              </div>
+
+              <div className="nip-citation">{selectedNode.citation || selectedNode.id}</div>
+
+              <div className="nip-meta">
+                {selectedNode.court && (
+                  <span className="nip-court">{selectedNode.court.toUpperCase()}</span>
+                )}
+                {selectedNode.date && (
+                  <>
+                    <span className="nip-sep">·</span>
+                    <span className="nip-year">{selectedNode.date.slice(0, 4)}</span>
+                  </>
+                )}
+              </div>
+
+              <div className="nip-rel-block">
+                <div className="nip-rel-label">
+                  <span>Relevance</span>
+                  <span className="nip-rel-val">
+                    {selectedNode.isAnchor
+                      ? '100%'
+                      : `${Math.max(15, 100 - (selectedNode.hops || 1) * 18)}%`}
+                  </span>
+                </div>
+                <div className="nip-rel-bar">
+                  <div
+                    className="nip-rel-fill"
+                    style={{
+                      width: selectedNode.isAnchor
+                        ? '100%'
+                        : `${Math.max(15, 100 - (selectedNode.hops || 1) * 18)}%`,
+                      background: selectedNode.isAnchor
+                        ? 'linear-gradient(90deg, #F97316, #FBBF24)'
+                        : 'linear-gradient(90deg, #7C3AED, #8B5CF6)',
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div className="nip-divider" />
+
+              <div className="nip-section-label">What the court decided</div>
+              <div className="nip-holding">
+                {selectedNode.holding || 'No summary available for this case.'}
+              </div>
+
+              <div className="nip-section-label" style={{ marginTop: 18 }}>Why it matters</div>
+              <div className="nip-layman">
+                {selectedNode.isAnchor
+                  ? "This is one of the central cases driving the analysis. The court's ruling here directly shapes how similar patent disputes are decided today."
+                  : `This case was cited ${selectedNode.hops === 1 ? 'directly' : `${selectedNode.hops} steps removed`} from the key cases. It supports or refines the legal rules established by those earlier decisions.`}
+              </div>
+
+              <div className="nip-ring nip-ring--1" />
+              <div className="nip-ring nip-ring--2" />
+            </div>
+          )}
+        </div>
+
         {/* Graph panel */}
-        <div className="graph-panel">
+        <div className="graph-panel" data-active={elements.length > 0}>
           <div ref={containerRef} className="cy-container">
           {elements.length > 0 ? (
             <CytoscapeComponent
               elements={elements}
               stylesheet={stylesheet}
-              layout={{ name: 'preset' }}
+              layout={{
+                name: 'dagre',
+                rankDir: 'BT',
+                nodeSep: 60,
+                rankSep: 80,
+                padding: 40,
+                animate: true,
+                animationDuration: 600,
+              }}
               style={{ width: '100%', height: '100%' }}
               cy={cy => {
                 cyRef.current = cy
+                cy.off('layoutstop')
+                cy.off('tap', 'node')
+                cy.on('layoutstop', () => {
+                  cy.fit(undefined, 40)
+                  cy.center()
+                })
                 cy.on('tap', 'node', e => {
                   const n = e.target
                   setSelectedNode({
@@ -238,7 +393,7 @@ export default function App() {
           ) : (
             <div className="graph-empty">
               {loading
-                ? <div className="loading-msg">Traversing knowledge graph…</div>
+                ? <div className="loading-msg"><TypingAnimation text="Traversing knowledge graph…" speed={50} /></div>
                 : <div className="graph-placeholder">
                     <div style={{ fontSize: 48, marginBottom: 12, opacity: 0.3 }}>⬡</div>
                     <div>Run a query to visualize the patent citation graph</div>
@@ -247,33 +402,6 @@ export default function App() {
             </div>
           )}
           </div>
-
-          {selectedNode && (
-            <div className="node-drawer">
-              <button className="drawer-close" onClick={() => setSelectedNode(null)}>✕</button>
-              <div className="drawer-badges">
-                {selectedNode.isAnchor
-                  ? <span className="drawer-badge anchor">Key Case</span>
-                  : <span className="drawer-badge related">Related Precedent</span>}
-                {selectedNode.hops > 0 && (
-                  <span className="drawer-badge hops">{selectedNode.hops === 1 ? '1 step away' : `${selectedNode.hops} steps away`}</span>
-                )}
-              </div>
-              <div className="drawer-citation">{selectedNode.citation}</div>
-              <div className="drawer-meta">
-                <span className="drawer-court">{(selectedNode.court || '').toUpperCase()}</span>
-                {selectedNode.date && <span> · {selectedNode.date.slice(0, 4)}</span>}
-              </div>
-              <div className="drawer-section-label">What the court decided</div>
-              <div className="drawer-holding">{selectedNode.holding || 'No summary available.'}</div>
-              <div className="drawer-section-label" style={{ marginTop: 10 }}>Why it matters</div>
-              <div className="drawer-layman">
-                {selectedNode.isAnchor
-                  ? 'This is one of the central cases driving the analysis. The court\'s ruling here directly shapes how similar patent disputes are decided today.'
-                  : `This case was cited ${selectedNode.hops === 1 ? 'directly' : `${selectedNode.hops} steps removed`} from the key cases. It supports or refines the legal rules established by those earlier decisions.`}
-              </div>
-            </div>
-          )}
 
           <div className="legend">
             {[['Anchor', '#F97316'], ['Case', '#8B5CF6'], ['Court', '#F59E0B'], ['Judge', '#6B7280']].map(([l, c]) => (
@@ -371,11 +499,20 @@ export default function App() {
             </div>
           ) : (
             <div className="memo-empty">
-              {loading ? 'Generating legal memo…' : 'Legal memo will appear here after your query.'}
+              {loading
+            ? <TypingAnimation text="Generating legal memo…" speed={45} />
+            : 'Legal memo will appear here after your query.'}
             </div>
           )}
         </div>
       </div>
+
+      {/* Landing page overlay — fades out when user submits */}
+      <AnimatePresence>
+        {showLanding && (
+          <Landing key="landing" onSubmit={handleLandingSubmit} />
+        )}
+      </AnimatePresence>
     </div>
   )
 }

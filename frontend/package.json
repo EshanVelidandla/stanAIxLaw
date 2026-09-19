@@ -10,12 +10,17 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@radix-ui/react-tooltip": "^1.2.8",
+    "@tailwindcss/vite": "^4.2.2",
     "cytoscape": "^3.33.2",
     "cytoscape-dagre": "^2.5.0",
+    "framer-motion": "^12.38.0",
+    "lucide-react": "^1.8.0",
     "react": "^19.2.4",
     "react-cytoscapejs": "^2.0.0",
     "react-dom": "^19.2.4",
-    "react-markdown": "^10.1.0"
+    "react-markdown": "^10.1.0",
+    "tailwindcss": "^4.2.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
